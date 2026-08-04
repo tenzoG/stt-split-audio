@@ -1,0 +1,20 @@
+{
+    "DEPARTMENT": "TPM_LS",
+    "FROM_ID": 5,
+    "TO_ID": 6,
+    "ID_COL": "ID",
+    "SHEET_NAME": "Sheet1",
+    "LINK_COL": "url",
+    "SR_COL": "Sr.no",
+    "PREFIX": "STT_TPM_LS",
+    "SEGMENT_DIR": "../data/segments_tpm_ls",
+    "DOWNLOAD_AUDIO_DIR": "../data/TPM_LS_full_audio",
+    "DOWNLOAD_VEDIOS_DIR": "../data/TPM_LS_full_videos",
+    "FILE_FORMAT": "wav",
+    "S3_BUCKET": "s3://monlam-ai-stt",
+    "SHEET_ID": "1wJFT-5SFl4puOcjSApx3C0iEd2VGtP_nxQjZfwfJxe4",
+    "GROUP_ID": 20,
+    "STT_TPM_IS_GA": 18,
+    "STT_TPM_IS_GB": 19,
+    "STT_TPM_IS_GC": 20
+}

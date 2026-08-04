@@ -34,8 +34,8 @@ def main(config):
 
         if sr_no >= from_id and sr_no <= to_id:
             print(id, yt_url)
-            yt_downloaded = f"""yt-dlp --extract-audio --audio-quality 0 --audio-format {file_format} --postprocessor-args "-ar 16000 -ac 1" {yt_url} -o '{download_audio_dir}/{id}.%(ext)s'"""
-            
+            yt_downloaded = f"""yt-dlp  --extract-audio --audio-quality 0 --audio-format {file_format} --postprocessor-args "-ar 16000 -ac 1" {yt_url} -o '{download_audio_dir}/{id}.%(ext)s'"""
+            #--cookies-from-browser brave --remote-components ejs:github -> these are added for TPM config
             # Run the command using subprocess
             subprocess.run(yt_downloaded, shell=True)
 
