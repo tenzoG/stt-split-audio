@@ -36,6 +36,8 @@ def main(config):
     segment_dir = config['SEGMENT_DIR']
     sheet_id = config['SHEET_ID']
     group_id = config['GROUP_ID']
+    # [Reason] Use shared ETEXTS_DIR (../data/etexts) instead of hardcoded ../util/etexts
+    etexts_dir = config.get('ETEXTS_DIR', '../data/etexts')
 
     # Read the spreadsheet
     df = read_spreadsheet(sheet_id=sheet_id)
@@ -71,11 +73,30 @@ def main(config):
 
         if sr_no >= from_id and sr_no <= to_id:
             print(id, sr_no)
-            transfer_text_df, status = transfer_text(f'../util/etexts/{id}.txt', f"../data/{dept}_{from_id}_to_{to_id}.tsv", id)
-            temp.append(transfer_text_df)
+            # [Reason] Resolve etext path from config so AB files in data/etexts are found
+            etext_path = str(Path(etexts_dir) / f'{id}.txt')
+            if not Path(etext_path).exists():
+                raise FileNotFoundError(
+                    f"Etext not found: {etext_path}. "
+                    f"Run download_doc.py first, or set ETEXTS_DIR in the config."
+                )
+            transfer_text_df, status = transfer_text(
+                etext_path,
+                f"../data/{dept}_{from_id}_to_{to_id}.tsv",
+                id,
+            )
+            # [Reason] Skip empty transfers so concat keeps real columns (avoids KeyError: file_name)
+            if transfer_text_df is not None and not transfer_text_df.empty:
+                temp.append(transfer_text_df)
             print(status)
 
-    transfered_text_df = pd.concat(temp)  
+    if not temp:
+        raise ValueError(
+            "No text was transferred for any ID. Check that the TSV has matching "
+            "file_name rows and etexts exist under ETEXTS_DIR."
+        )
+
+    transfered_text_df = pd.concat(temp, ignore_index=True)
     transfered_text_df.head()
 
     transfered_text_df.fillna('', inplace=True)

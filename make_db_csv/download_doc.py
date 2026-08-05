@@ -133,12 +133,20 @@ def main(config):
     sheet_id = config['SHEET_ID']
     group_id = config['GROUP_ID']
     
-    audio_text_link_col = config.get('AUDIO_TEXT_LINK_COL', 'Audio text link')
+    # [Reason] Honor LINK_COL from ab_config_etext.json; AUDIO_TEXT_LINK_COL kept as override
+    audio_text_link_col = config.get(
+        'AUDIO_TEXT_LINK_COL',
+        config.get('LINK_COL', 'Audio text link'),
+    )
     etext_dir = config.get('ETEXTS_DIR', '../data/etexts')
     docx_dir = config.get('DOCX_DIR', '../data/docx')
     predicted_csv = config.get('PREDICTED_CSV', f'../data/{dept}_{from_id}_to_{to_id}.csv')
     column_name = config.get('COLUMN_NAME', 'inference_transcript')
     duration_col = config.get('DURATION_COL', 'audio_duration')
+
+    print(f"Etexts directory: {etext_dir}")
+    print(f"DOCX directory: {docx_dir}")
+    print(f"Predicted CSV: {predicted_csv}")
     
     print(f"\n[Step 1/5] Reading Google Sheet...")
     sheet_name = config.get('SHEET_NAME', None)

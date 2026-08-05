@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run yt_download.py
-echo "Running docx_download.py..."
+echo "Running yt_download.py..."
 python ../audio_download_and_split/yt_download.py --config ../json_config/ab_config.json
 if [ $? -ne 0 ]; then
   echo "Error running yt_download.py. Exiting..."
@@ -10,7 +10,7 @@ fi
 
 # Run run_inference.py
 echo "Running run_inference.py..."
-python ../inference_runner/run_inference.py --config ../json_config/ab_config.json
+python ../inference_runner/run_inference_text.py --config ../json_config/ab_config.json
 if [ $? -ne 0 ]; then
   echo "Error running run_inference.py. Exiting..."
   exit 1
@@ -24,22 +24,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo "All scripts ran successfully!"
-"""
-# Run transfer_text.py
-echo "Running transfer_text.py..."
-python ../make_db_csv/transfer_text.py --config ../json_config/ab_config.json
+# [Reason] AB etext transfer lives in download_doc.py (download + transfer + upload CSV);
+# transfer_text.py is obsolete here and pointed at the wrong etexts path.
+echo "Running download_doc.py (AB etext download + text transfer)..."
+python ../make_db_csv/download_doc.py --config ../json_config/ab_config_etext.json
 if [ $? -ne 0 ]; then
-  echo "Error running make_csv.py. Exiting..."
+  echo "Error running download_doc.py. Exiting..."
   exit 1
 fi
 
-#extra step for audio book
-# python ../make_db_csv/download_doc.py --config ../json_config/ab_config_etext.json
-
 echo "All scripts ran successfully!"
-
-
-"""
-
-

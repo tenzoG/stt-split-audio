@@ -86,7 +86,15 @@ def transfer_text(OriginalText, PredictedTSV, file_name, ColumnNumber='inference
         dataFrame: dataFrame that contains transferred annotation on original text
     """
     tsvFile = pd.read_csv(f"{PredictedTSV}", sep="\t")
-    tsvFile = tsvFile[tsvFile['file_name'].str[0:11] == file_name]
+    # [Reason] Match full ID prefix (AB IDs are >11 chars; old str[0:11] filter returned empty frames)
+    tsvFile = tsvFile[
+        tsvFile['file_name'].str.startswith(f"{file_name}_", na=False)
+        | (tsvFile['file_name'] == file_name)
+    ].copy()
+
+    if tsvFile.empty:
+        print(f"⚠ No rows found for {file_name}")
+        return tsvFile, 'No data'
 
     tsvFile.sort_values(by=['file_name'], inplace=True)
 
@@ -94,17 +102,20 @@ def transfer_text(OriginalText, PredictedTSV, file_name, ColumnNumber='inference
     target = get_original_text(OriginalText)
     annotation = [["segment", "(\n)"]]
     transferredText = transfer(source, annotation, target).split("\n")
-    if len(transferredText) > len(tsvFile):
-        transferredText = transferredText[:len(tsvFile)]
+    original_length = len(tsvFile)
+    transferred_length = len(transferredText)
+    if transferred_length > original_length:
+        # [Reason] Compute truncate count before slicing so status is not always Truncated 0
+        status = f'Truncated {transferred_length - original_length}'
+        transferredText = transferredText[:original_length]
         tsvFile[ColumnNumber] = transferredText
-        status= f'Truncated {abs(len(transferredText)-len(tsvFile))}'
-    elif len(transferredText) < len(tsvFile):
-        transferredText = transferredText + [np.nan]*(len(tsvFile) - len(transferredText))
+    elif transferred_length < original_length:
+        transferredText = transferredText + [np.nan]*(original_length - transferred_length)
         tsvFile[ColumnNumber] = transferredText
-        status=f'Padded {abs(len(transferredText)-len(tsvFile))}'
+        status = f'Padded {original_length - transferred_length}'
     else:
         tsvFile[ColumnNumber] = transferredText
-        status='Normal'
+        status = 'Normal'
 
     # returns a dataFrame
     return tsvFile, status

@@ -10,9 +10,10 @@
     "DOWNLOAD_AUDIO_DIR": "../data/AB_full_audio",
     "DOWNLOAD_VEDIOS_DIR": "../data/AB_full_videos",
     "FILE_FORMAT": "wav",
-    "S3_BUCKET": "s3://monlam.ai.stt",
+    "S3_BUCKET": "s3://monlam-ai-stt",
     "SHEET_ID": "1TXTmFTSbCuEy6nzZj--jjprFmZkpJZVz8gkMYrBcPUU",
     "GROUP_ID": 1,
+    "ETEXTS_DIR": "../data/etexts",
     "STT_AM_AB_GA" : 1,
     "STT_CS_GB" : 2,
     "STT_CS_GF" : 7

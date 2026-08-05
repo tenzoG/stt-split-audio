@@ -111,12 +111,23 @@ Get started with stt-split-audio by checking the catalog for a department and ch
       AWS CLI is configured and authenticated.
       go to util directory: cd util/
       Run the shell script: ../run_all.sh
+
+  AB audiobook extra step (etext transfer):
+    After make_csv.py, the AB pipeline runs download_doc.py with ab_config_etext.json.
+    That script downloads Google Doc etexts into ETEXTS_DIR (default ../data/etexts/),
+    transfers annotations onto the predicted CSV, and writes:
+      - ../data/stt_ab_upload_new.csv
+      - ../data/stt_ab_analysis.csv
+    Do not use make_db_csv/transfer_text.py for AB; it is a legacy path and is not part of run_all.sh.
+
 ## implementation flow
 ![image](https://github.com/user-attachments/assets/147443db-60b3-4f7c-af54-b47e0ecea799)
 
 ## Transfer Text Function
 ### Overview
 The transfer_text function aligns and transfers annotations from predicted text (in a TSV file) to the original text (in a text file). The output is a DataFrame containing transferred annotations, ensuring a one-to-one correspondence between the predicted and original text.
+
+For the AB workflow, this transfer is performed inside `make_db_csv/download_doc.py` (not `transfer_text.py`). Etext files are read from `ETEXTS_DIR` in `json_config/ab_config_etext.json` (default `../data/etexts/`).
 
 
 ## Contributing guidelines
