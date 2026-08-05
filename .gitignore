@@ -19,3 +19,14 @@ __pycache__/
 __pycache__/
 .env
 **/.env
+
+# Generated data
+data/*.csv
+data/*.tsv
+data/AB_after_split/
+data/AB_full_audio/
+data/CS_after_split/
+data/CS_full_audio/
+data/docx/
+data/etexts/
+data/segments_ab/
