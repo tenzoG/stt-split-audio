@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import quote
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -8,17 +9,21 @@ from googleapiclient.http import MediaIoBaseDownload
 import io
 import pandas as pd
 
-def read_spreadsheet(sheet_id):
+def read_spreadsheet(sheet_id, sheet_name=None):
     """
     Reads a Google Spreadsheet as a Pandas DataFrame.
     
     Args:
         sheet_id (str): The ID of the Google Spreadsheet.
+        sheet_name (str, optional): Worksheet tab name. Defaults to the first sheet.
     
     Returns:
         DataFrame: A Pandas DataFrame containing the spreadsheet data.
     """
+    # [Reason] Support optional worksheet selection used by download_doc.py / SHEET_NAME configs
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv"
+    if sheet_name:
+        url += f"&sheet={quote(sheet_name)}"
     df = pd.read_csv(url)
     return df
 

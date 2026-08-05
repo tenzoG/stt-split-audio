@@ -26,7 +26,8 @@ def download_etext(gd_url,file_name):
         return
     docx_url, _ = os.path.split(gd_url)
     docx_url = os.path.join(docx_url, 'export?format=docx')
-    docx_path = gdown.download(docx_url, output=f'docx/{file_name}.docx', quiet=False, fuzzy=True)
+    # [Reason] gdown>=5 removed fuzzy; export URL already targets the docx download
+    docx_path = gdown.download(docx_url, output=f'docx/{file_name}.docx', quiet=False)
     # Convert the .docx file to text
     text = docx_to_txt(docx_path)
     # Create a .txt path with the same name as the .docx file
