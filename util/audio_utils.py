@@ -1,16 +1,20 @@
 import os
-from pydub import AudioSegment
-import torchaudio
-import librosa
-from pyannote.audio import Pipeline
-from tqdm import tqdm
-from pydub import AudioSegment
-import os
 import subprocess
+from pathlib import Path
 
+import librosa
+import torchaudio
+from dotenv import load_dotenv
+from pyannote.audio import Pipeline
+from pydub import AudioSegment
+from tqdm import tqdm
 
 upper_limit = 8
 lower_limit = 2
+
+# [Reason] Keep HF credentials out of source; util/.env already holds other secrets
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
 
 def convert_to_wav_inplace(input_file):
     """
@@ -59,9 +63,17 @@ HYPER_PARAMETERS = {
     "min_duration_off": 0.0,
 }
 
+# [Reason] pyannote.audio 3.3.2 uses use_auth_token; 4.x renamed it to token
+_hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGING_FACE_HUB_TOKEN")
+if not _hf_token:
+    raise ValueError(
+        "Missing Hugging Face token. Set HF_TOKEN in util/.env "
+        "or run `huggingface-cli login`."
+    )
+
 pipeline = Pipeline.from_pretrained(
     "pyannote/voice-activity-detection",
-    use_auth_token="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",
+    use_auth_token=_hf_token,
 )
 pipeline.instantiate(HYPER_PARAMETERS)
 
@@ -88,15 +100,35 @@ def split_audio(audio_file, output_folder, dept):
     Args:
         audio_file (str): path to full audio file
         output_folder (str): where to store the split segments
+        dept (str): department code used in the output path
     """
+    # [Reason] Always create output dir before writing so collect_segments never hits FileNotFoundError
+    output_dir = f"../data/{dept}_after_split/{output_folder}"
+    os.makedirs(output_dir, exist_ok=True)
+
+    print(f"[split_audio] input audio path: {audio_file}")
+    print(f"[split_audio] output directory: {output_dir}")
+
     convert_to_wav_inplace(audio_file)
-    print(f"{audio_file} {output_folder}")
     vad = pipeline(audio_file)
+    vad_timeline = list(vad.get_timeline().support())
+    print(f"[split_audio] pyannote VAD spans: {len(vad_timeline)}")
+
+    # [Reason] Surface empty VAD results instead of silently producing no files
+    if len(vad_timeline) == 0:
+        print(
+            f"[split_audio] WARNING: pyannote produced zero segments for {audio_file}. "
+            f"Created empty output directory: {output_dir}"
+        )
+        return
+
     original_audio_segment = AudioSegment.from_file(audio_file)
     original_audio_ndarray, sampling_rate = torchaudio.load(audio_file)
     original_audio_ndarray = original_audio_ndarray[0]
     counter = 1
-    for vad_span in vad.get_timeline().support():
+    created_files = []
+
+    for vad_span in vad_timeline:
         vad_segment = original_audio_segment[
             sec_to_millis(vad_span.start) : sec_to_millis(vad_span.end)
         ]
@@ -111,6 +143,11 @@ def split_audio(audio_file, output_folder, dept):
                 end_ms=sec_to_millis(vad_span.end),
                 dept=dept
             )
+            created_path = (
+                f"{output_dir}/{output_folder}_{counter:04}_"
+                f"{int(sec_to_millis(vad_span.start))}_to_{int(sec_to_millis(vad_span.end))}.wav"
+            )
+            created_files.append(created_path)
             print(
                 f"{counter} {vad_span_length:.2f} {sec_to_millis(vad_span.start):.2f} {sec_to_millis(vad_span.end):.2f} vad"
             )
@@ -124,9 +161,7 @@ def split_audio(audio_file, output_folder, dept):
                 ],
                 top_db=30,
             )
-            # print(non_mute_segment_splits)
             for split_start, split_end in non_mute_segment_splits:
-                # print(f'non mute {(frame_to_sec(split_end, sampling_rate) - frame_to_sec(split_start, sampling_rate)):.2f} {vad_span.start + frame_to_sec(split_start, sampling_rate):.2f} {vad_span.start + frame_to_sec(split_end, sampling_rate):.2f} {split_start} {split_end}')
                 segment_split = original_audio_segment[
                     sec_to_millis(
                         vad_span.start + frame_to_sec(split_start, sampling_rate)
@@ -141,21 +176,26 @@ def split_audio(audio_file, output_folder, dept):
                     segment_split_duration >= lower_limit
                     and segment_split_duration <= upper_limit
                 ):
+                    start_ms = sec_to_millis(
+                        vad_span.start + frame_to_sec(split_start, sampling_rate)
+                    )
+                    end_ms = sec_to_millis(
+                        vad_span.start + frame_to_sec(split_end, sampling_rate)
+                    )
                     save_segment(
                         segment=segment_split,
                         folder=output_folder,
                         prefix=output_folder,
                         id=counter,
-                        start_ms=sec_to_millis(
-                            vad_span.start + frame_to_sec(split_start, sampling_rate)
-                        ),
-                        end_ms=sec_to_millis(
-                            vad_span.start + frame_to_sec(split_end, sampling_rate)
-                        ),
+                        start_ms=start_ms,
+                        end_ms=end_ms,
                         dept=dept
                     )
+                    created_files.append(
+                        f"{output_dir}/{output_folder}_{counter:04}_{int(start_ms)}_to_{int(end_ms)}.wav"
+                    )
                     print(
-                        f"{counter} {segment_split_duration:.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate)):.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_end, sampling_rate)):.2f} split"
+                        f"{counter} {segment_split_duration:.2f} {start_ms:.2f} {end_ms:.2f} split"
                     )
                     counter += 1
                 elif segment_split_duration > upper_limit:
@@ -163,38 +203,50 @@ def split_audio(audio_file, output_folder, dept):
                     while chop_length > upper_limit:
                         chop_length = chop_length / 2
                     for j in range(int(segment_split_duration / chop_length)):
+                        start_ms = sec_to_millis(
+                            vad_span.start
+                            + frame_to_sec(split_start, sampling_rate)
+                            + chop_length * j
+                        )
+                        end_ms = sec_to_millis(
+                            vad_span.start
+                            + frame_to_sec(split_start, sampling_rate)
+                            + chop_length * (j + 1)
+                        )
                         segment_split_chop = original_audio_segment[
-                            sec_to_millis(
-                                vad_span.start
-                                + frame_to_sec(split_start, sampling_rate)
-                                + chop_length * j
-                            ) : sec_to_millis(
-                                vad_span.start
-                                + frame_to_sec(split_start, sampling_rate)
-                                + chop_length * (j + 1)
-                            )
+                            start_ms:end_ms
                         ]
                         save_segment(
                             segment=segment_split_chop,
                             folder=output_folder,
                             prefix=output_folder,
                             id=counter,
-                            start_ms=sec_to_millis(
-                                vad_span.start
-                                + frame_to_sec(split_start, sampling_rate)
-                                + chop_length * j
-                            ),
-                            end_ms=sec_to_millis(
-                                vad_span.start
-                                + frame_to_sec(split_start, sampling_rate)
-                                + chop_length * (j + 1)
-                            ),
+                            start_ms=start_ms,
+                            end_ms=end_ms,
                             dept=dept
                         )
+                        created_files.append(
+                            f"{output_dir}/{output_folder}_{counter:04}_{int(start_ms)}_to_{int(end_ms)}.wav"
+                        )
                         print(
-                            f"{counter} {chop_length:.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * j ):.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * ( j + 1 )):.2f} chop"
+                            f"{counter} {chop_length:.2f} {start_ms:.2f} {end_ms:.2f} chop"
                         )
                         counter += 1
+
+    segments_generated = len(created_files)
+    print(f"[split_audio] number of segments generated: {segments_generated}")
+    if segments_generated == 0:
+        # [Reason] VAD found speech but all spans were filtered out by length limits
+        print(
+            f"[split_audio] WARNING: no segments written for {audio_file} "
+            f"(VAD spans={len(vad_timeline)} but none within "
+            f"{lower_limit}-{upper_limit}s after split/chop). "
+            f"Output directory still created: {output_dir}"
+        )
+    else:
+        print(f"[split_audio] created files:")
+        for path in created_files:
+            print(f"  - {path}")
 
 
 def split_audio_files(prefix, ext, audio_dir, dept):
