@@ -34,5 +34,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+#extra step for audio book
+# python ../make_db_csv/download_doc.py --config ../json_config/ab_config_etext.json
+
 echo "All scripts ran successfully!"
+
+
+
 """
+
+

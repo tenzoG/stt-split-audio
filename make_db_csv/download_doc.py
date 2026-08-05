@@ -44,7 +44,8 @@ def download_etext(gd_url, file_name, etext_dir, docx_dir):
     
     docx_path = os.path.join(docx_dir, f'{file_name}.docx')
     try:
-        gdown.download(docx_url, output=docx_path, quiet=False, fuzzy=True)
+        # [Reason] gdown>=5 removed fuzzy; export URL already targets the docx download
+        gdown.download(docx_url, output=docx_path, quiet=False)
         text = docx_to_txt(docx_path)
         text = clean_text(text)
         
