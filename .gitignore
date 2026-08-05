@@ -1,8 +1,5 @@
 util/credentials.json
 util/token.json
-data/CS.csv
-data/NS.csv
-data/PC.csv
 run_all1.sh
 audio_download_and_split/test_urldownload.py
 #DS_STORE
@@ -20,14 +17,5 @@ __pycache__/
 .env
 **/.env
 
-# Generated data
-data/*.csv
-data/*.tsv
-data/AB_after_split/
-data/AB_full_audio/
-data/CS_after_split/
-data/CS_full_audio/
-data/docx/
-data/etexts/
-data/segments_ab/
-
+# Ignore all generated/local data (audio, csv, segments, etc.)
+data/
