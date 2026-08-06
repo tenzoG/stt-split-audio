@@ -1,15 +1,15 @@
 {
-   "DEPARTMENT": "AB",
-    "FROM_ID": 1686,
-    "TO_ID": 1687,
+    "DEPARTMENT": "AB",
     "ID_COL": "ID",
     "LINK_COL": "Audio text link",
     "SR_COL": "Sr. no",
     "PREFIX": "STT_AM_AB",
     "ETEXTS_DIR": "../data/etexts",
     "DOCX_DIR": "../data/docx",
-    "PREDICTED_CSV": "../data/AB_1686_to_1687.csv",
+    "PREDICTED_CSV": "../data/AB_1698_to_1700.csv",
     "SHEET_ID": "1TXTmFTSbCuEy6nzZj--jjprFmZkpJZVz8gkMYrBcPUU",
     "COLUMN_NAME": "inference_transcript",
     "GROUP_ID":1
 }
+
+

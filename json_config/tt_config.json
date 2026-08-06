@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "TT",
-    "FROM_ID": 208,
-    "TO_ID": 213,
     "ID_COL": "ID",
     "LINK_COL": "Audio link",
     "SR_COL": "Sr.no",

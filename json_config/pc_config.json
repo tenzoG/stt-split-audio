@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "PC",
-    "FROM_ID": 582,
-    "TO_ID": 627,
     "ID_COL": "ID",
     "LINK_COL": "YouTube link",
     "SR_COL": "Sr.no",

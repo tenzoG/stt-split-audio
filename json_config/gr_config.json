@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "GR",
-    "FROM_ID": 1,
-    "TO_ID": 3,
     "ID_COL": "ID",
     "LINK_COL": "Filename",
     "SR_COL": "Sr.no",

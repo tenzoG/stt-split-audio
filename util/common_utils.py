@@ -51,10 +51,65 @@ def clean_transcription(text):
 
 
 
+def _load_json_with_comments(path):
+    """Load JSON that may include // line comments (used by the shared var file)."""
+    with open(path, 'r') as f:
+        text = f.read()
+    # [Reason] Allow department comments like // AB above each block in var
+    text = re.sub(r'//.*?$', '', text, flags=re.MULTILINE)
+    return json.loads(text)
+
+
+def _project_var_path():
+    """Path to stt-split-audio/var (shared FROM_ID/TO_ID by department)."""
+    import os
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'var')
+
+
+def _var_key_for_config(config_path):
+    """Map config filename to a var key, e.g. ab_config_etext.json -> AB."""
+    import os
+    stem = os.path.splitext(os.path.basename(config_path))[0]
+    for suffix in ('_config_etext', '_config', '_etext'):
+        if stem.endswith(suffix):
+            stem = stem[: -len(suffix)]
+            break
+    return stem.upper()
+
+
 def load_config_from_file(config_path):
-    """Load configuration from the given JSON file."""
+    """Load configuration from the given JSON file.
+
+    Supports optional EXTENDS to inherit from another JSON file (path is
+    relative to the config). Child keys override the parent.
+
+    Also injects FROM_ID / TO_ID from the shared ../var file, keyed by
+    department/config name (see comments in var).
+    """
+    import os
+
     with open(config_path, 'r') as f:
         config = json.load(f)
+
+    # [Reason] Let configs inherit shared keys from a parent JSON when needed
+    extends = config.pop('EXTENDS', None)
+    if extends:
+        parent_path = os.path.join(os.path.dirname(os.path.abspath(config_path)), extends)
+        parent = load_config_from_file(parent_path)
+        parent.update(config)
+        config = parent
+
+    # [Reason] Single place to edit ID ranges for every json_config
+    var_path = _project_var_path()
+    if os.path.isfile(var_path) and os.path.abspath(config_path) != os.path.abspath(var_path):
+        shared = _load_json_with_comments(var_path)
+        key = _var_key_for_config(config_path)
+        section = shared.get(key)
+        if isinstance(section, dict):
+            for id_key in ('FROM_ID', 'TO_ID'):
+                if id_key in section:
+                    config[id_key] = section[id_key]
+
     return config
 
 

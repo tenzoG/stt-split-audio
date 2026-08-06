@@ -1,0 +1,31 @@
+{
+    // AB - ab_config.json, ab_config_etext.json
+    "AB": { "FROM_ID": 1734, "TO_ID": 1734 },
+
+    // CS - cs_config.json
+    "CS": { "FROM_ID": 404, "TO_ID": 405 },
+
+    // GR - gr_config.json
+    "GR": { "FROM_ID": 1, "TO_ID": 3 },
+
+    // HS - hs_config.json
+    "HS": { "FROM_ID": 421, "TO_ID": 425 },
+
+    // NS - ns_config.json
+    "NS": { "FROM_ID": 144, "TO_ID": 216 },
+
+    // NW - nw_config.json
+    "NW": { "FROM_ID": 794, "TO_ID": 795 },
+
+    // NW1 - nw1_config.json
+    "NW1": { "FROM_ID": 1, "TO_ID": 2 },
+
+    // PC - pc_config.json
+    "PC": { "FROM_ID": 582, "TO_ID": 627 },
+
+    // TT - tt_config.json
+    "TT": { "FROM_ID": 208, "TO_ID": 213 },
+
+    // TPM_LS - tpm_config.json
+    "TPM": { "FROM_ID": 5, "TO_ID": 6 }
+}

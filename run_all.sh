@@ -24,12 +24,19 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# [Reason] AB etext transfer lives in download_doc.py (download + transfer + upload CSV);
-# transfer_text.py is obsolete here and pointed at the wrong etexts path.
-echo "Running download_doc.py (AB etext download + text transfer)..."
+# [Reason] download_doc.py fetches etexts into ETEXTS_DIR before transfer_text.py runs
+echo "Running download_doc.py (AB etext download)..."
 python ../make_db_csv/download_doc.py --config ../json_config/ab_config_etext.json
 if [ $? -ne 0 ]; then
   echo "Error running download_doc.py. Exiting..."
+  exit 1
+fi
+
+# Run transfer_text.py
+echo "Running transfer_text.py..."
+python ../make_db_csv/transfer_text.py --config ../json_config/ab_config.json
+if [ $? -ne 0 ]; then
+  echo "Error running transfer_text.py. Exiting..."
   exit 1
 fi
 

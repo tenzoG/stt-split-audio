@@ -112,13 +112,14 @@ Get started with stt-split-audio by checking the catalog for a department and ch
       go to util directory: cd util/
       Run the shell script: ../run_all.sh
 
-  AB audiobook extra step (etext transfer):
-    After make_csv.py, the AB pipeline runs download_doc.py with ab_config_etext.json.
-    That script downloads Google Doc etexts into ETEXTS_DIR (default ../data/etexts/),
-    transfers annotations onto the predicted CSV, and writes:
-      - ../data/stt_ab_upload_new.csv
-      - ../data/stt_ab_analysis.csv
-    Do not use make_db_csv/transfer_text.py for AB; it is a legacy path and is not part of run_all.sh.
+  AB audiobook extra steps (etext transfer):
+    After make_csv.py, the AB pipeline runs:
+      1. download_doc.py with ab_config_etext.json
+         - downloads Google Doc etexts into ETEXTS_DIR (default ../data/etexts/)
+         - also writes ../data/stt_ab_upload_new.csv and ../data/stt_ab_analysis.csv
+      2. transfer_text.py with ab_config.json
+         - transfers annotations using etexts from ETEXTS_DIR
+         - writes ../data/AB_{group}_{from}_to_{to}_transfered.csv
 
 ## implementation flow
 ![image](https://github.com/user-attachments/assets/147443db-60b3-4f7c-af54-b47e0ecea799)

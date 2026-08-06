@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "NW",
-    "FROM_ID": 794,
-    "TO_ID": 795,
     "ID_COL": "ID",
     "LINK_COL": "youtube link",
     "SR_COL": "Sr.no",

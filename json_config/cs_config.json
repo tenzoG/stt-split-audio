@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "CS",
-    "FROM_ID": 404,
-    "TO_ID": 405,
     "ID_COL": "STT_0000",
     "LINK_COL": "Audio Link (in Drive)",
     "SR_COL": "S. no",

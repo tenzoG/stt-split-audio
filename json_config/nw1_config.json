@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "NW",
-    "FROM_ID": 1,
-    "TO_ID": 2,
     "ID_COL": "ID",
     "LINK_COL": "Audio URL",
     "SR_COL": "Sr.no",

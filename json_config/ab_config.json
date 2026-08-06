@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "AB",
-    "FROM_ID": 1686,
-    "TO_ID": 1687,
     "ID_COL": "ID",
     "LINK_COL": "Audio LInk",
     "SR_COL": "Sr. no",
@@ -17,5 +15,4 @@
     "STT_AM_AB_GA" : 1,
     "STT_CS_GB" : 2,
     "STT_CS_GF" : 7
-
 }

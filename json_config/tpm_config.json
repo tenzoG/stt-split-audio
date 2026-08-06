@@ -1,7 +1,5 @@
 {
     "DEPARTMENT": "TPM_LS",
-    "FROM_ID": 5,
-    "TO_ID": 6,
     "ID_COL": "ID",
     "SHEET_NAME": "Sheet1",
     "LINK_COL": "url",
