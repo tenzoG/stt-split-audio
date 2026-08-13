@@ -24,7 +24,8 @@ pandas
 gdown
 python-docx
 requests
-yt-dlp
+# [Reason] Keep yt-dlp current for YouTube SABR / player-client workarounds
+yt-dlp>=2025.1.15
 boto3
 ipywidgets
 jupyter

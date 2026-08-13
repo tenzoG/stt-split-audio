@@ -14,5 +14,13 @@
     "GROUP_ID": 20,
     "STT_TPM_IS_GA": 18,
     "STT_TPM_IS_GB": 19,
-    "STT_TPM_IS_GC": 20
+    "STT_TPM_IS_GC": 20,
+    "YT_DLP": {
+        "player_clients": ["default", "android", "tv", "ios"],
+        "remote_components": ["ejs:github"],
+        "cookie_fallback": true,
+        "retries": 3,
+        "timeout_seconds": 600
+    }
 }
+

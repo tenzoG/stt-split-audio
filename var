@@ -27,5 +27,5 @@
     "TT": { "FROM_ID": 208, "TO_ID": 213 },
 
     // TPM_LS - tpm_config.json
-    "TPM": { "FROM_ID": 5, "TO_ID": 6 }
+    "TPM": { "FROM_ID": 298, "TO_ID": 298 }
 }
